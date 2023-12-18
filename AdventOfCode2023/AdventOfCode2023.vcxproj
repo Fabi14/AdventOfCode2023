@@ -131,6 +131,10 @@
   <ItemGroup>
     <ClCompile Include="AdventOfCode2023.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="02.txt" />
+    <Text Include="Day01\01.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

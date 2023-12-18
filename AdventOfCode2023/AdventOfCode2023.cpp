@@ -64,12 +64,84 @@ namespace {
         const long sum2 = std::reduce(calibrationValues2.begin(), calibrationValues2.end(), 0l, std::plus{});
         std::println("Sum of all calibration values Part 2: {}", sum2);
     }
+
+    void day02()
+        {
+            using namespace  std::views;
+
+            enum class CubeColor
+            {
+                blue, red, green
+            };
+
+            const auto isDigit = [](char c) {return std::isdigit(c); };
+            auto createCube = [&](auto&& s)
+                {
+                    const auto numbers = std::stoi(s | filter(isDigit) | std::ranges::to<std::string>());
+                    if ((s | std::ranges::to<std::string>()).contains("red"))
+                    {
+                        return std::make_pair(CubeColor::red, numbers) ;
+                    }
+
+                    if ((s | std::ranges::to<std::string>()).contains("blue"))
+                    {
+                        return std::make_pair(CubeColor::blue, numbers);
+                    }
+
+                    if ((s | std::ranges::to<std::string>()).contains("green"))
+                    {
+                        return std::make_pair(CubeColor::green, numbers);
+                    }
+                    return std::make_pair(CubeColor::green, numbers);
+                };
+
+            auto createCubes = [&](auto&& s)
+                {
+                    return s | lazy_split(',') | transform(createCube);
+                };
+
+            auto isNumberOfCubesPossible = [&](std::pair<CubeColor, int>&& s)
+                {
+                   return s.first == CubeColor::blue && s.second <= 14 ||
+                        s.first == CubeColor::green && s.second <= 13 ||
+                       s.first == CubeColor::red && s.second <= 12;
+                };
+
+            const auto isPossibleGame = [&](const std::string& input)
+                {
+                    auto games = input | drop_while([](char c) {return c != ':'; }) | lazy_split(';') | std::ranges::to<std::vector>();
+                    auto cubesOfGames = games | transform(createCubes) | join;
+                    auto test = cubesOfGames  | std::ranges::to<std::vector>();
+                    auto areGamesPosible = cubesOfGames  | transform(isNumberOfCubesPossible) | std::ranges::to<std::vector>();
+
+                    return std::reduce(areGamesPosible.begin(), areGamesPosible.end(), true, std::logical_and{});
+                };
+
+            auto getGameNumber = [&](auto&& s)
+                {
+                    const auto gameNumberString = s | drop(std::string{ "Game" }.size()-1) | take_while([](char c) {return c != ':'; }) | filter(isDigit) | std::ranges::to<std::string>();
+                    return std::stoi(gameNumberString);
+                };
+
+            std::ifstream inputFile("02.txt");
+            const auto test = istream<std::string>(inputFile) | join_with(' ') | std::ranges::to<std::string>();
+            std::vector<std::string> numbersOfPossibleGamesSritng = test | lazy_split('G') | drop(1) | take_while([](auto&& view) {return view.begin() != view.end(); }) | transform([](auto&& s) {return s | std::ranges::to<std::string>(); }) | std::ranges::to<std::vector>();
+                
+              auto  numbersOfPossibleGames =  numbersOfPossibleGamesSritng | filter(isPossibleGame) | transform(getGameNumber) | std::ranges::to<std::vector>();
+            const int sum =  std::reduce(numbersOfPossibleGames.begin(), numbersOfPossibleGames.end(), 0, std::plus{});
+
+            std::println("Sum of the IDs of possible games : {}", sum);
+        }
 }
 
 int main()
 {
     std::println("Day 1:");
     day01();
+    std::println("----------------------------");
+
+    std::println("Day 2:");
+    day02();
     std::println("----------------------------");
 }
 
