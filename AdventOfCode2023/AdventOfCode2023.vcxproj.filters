@@ -18,6 +18,9 @@
     <ClCompile Include="AdventOfCode2023.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Day02.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Day01\01.txt">
@@ -26,5 +29,10 @@
     <Text Include="02.txt">
       <Filter>Resource Files</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Day02.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
