@@ -7,7 +7,8 @@
 #include <functional>
 #include <algorithm>
 
-#include "Day02.h"
+#include "Days.h"
+#include "helper.h"
 using namespace  std::views;
 namespace
 {
@@ -16,14 +17,9 @@ namespace
         blue, red, green
     };
 
-    auto isDigit = [](char c)
-        {
-            return std::isdigit(c);
-        };
-
     const auto createCube = [&](auto&& s)
         {
-            const auto numbers = std::stoi(s | filter(isDigit) | std::ranges::to<std::string>());
+            const auto numbers = std::stoi(s | filter(isDigit()) | std::ranges::to<std::string>());
             if ((s | std::ranges::to<std::string>()).contains("red"))
             {
                 return std::make_pair(CubeColor::red, numbers);
@@ -64,7 +60,7 @@ namespace
 
     const auto getGameNumber = [&](auto&& s)
         {
-            const auto gameNumberString = s | drop(std::string{ "Game" }.size() - 1) | take_while([](char c) {return c != ':'; }) | filter(isDigit) | std::ranges::to<std::string>();
+            const auto gameNumberString = s | drop(std::string{ "Game" }.size() - 1) | take_while([](char c) {return c != ':'; }) | filter(isDigit()) | std::ranges::to<std::string>();
             return std::stoi(gameNumberString);
         };
 
@@ -105,7 +101,7 @@ namespace
 
 
 
-void day02()
+void aoc::day02()
 {
     std::ifstream inputFile("02.txt");
     const auto inputString = istream<std::string>(inputFile) | join_with(' ') | std::ranges::to<std::string>();
