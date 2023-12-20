@@ -54,12 +54,12 @@ Card 6 : 31 18 13 56 72 | 74 77 10 23 35 67 36 11"
 
 
 	TEST(Day04, splitLine_oneDelimiter) {
-		std::string s{ "a,b,c" };
+		std::string s{ "a,bb,c" };
 		
 		auto vec = splitLine(',')(s)  | std::ranges::to<std::vector>();
 
 		EXPECT_EQ(std::string{ "a" }, vec.at(0));
-		EXPECT_EQ(std::string{ "b" }, vec.at(1));
+		EXPECT_EQ(std::string{ "bb" }, vec.at(1));
 		EXPECT_EQ(std::string{ "c" }, vec.at(2));
 	}
 
@@ -76,13 +76,13 @@ Card 6 : 31 18 13 56 72 | 74 77 10 23 35 67 36 11"
 		EXPECT_EQ(std::string{ "z" }, vec.at(5));
 	}
 	TEST(Day04, splitLine_twoDelimiters_02) {
-		std::string s{ "a|b,c|x,y,z" };
+		std::string s{ "a|bb,ccc|x,y,z" };
 
 		auto vec = splitLine('|', ',')(s) | std::ranges::to<std::vector>();
 
 		EXPECT_EQ(std::string{ "a" }, vec.at(0));
-		EXPECT_EQ(std::string{ "b" }, vec.at(1));
-		EXPECT_EQ(std::string{ "c" }, vec.at(2));
+		EXPECT_EQ(std::string{ "bb" }, vec.at(1));
+		EXPECT_EQ(std::string{ "ccc" }, vec.at(2));
 		EXPECT_EQ(std::string{ "x" }, vec.at(3));
 		EXPECT_EQ(std::string{ "y" }, vec.at(4));
 		EXPECT_EQ(std::string{ "z" }, vec.at(5));

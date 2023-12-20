@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <numeric>
 #include <fstream>
+#include <functional>
 #include "helper.h"
 
 namespace {
@@ -36,68 +37,67 @@ namespace {
             });
     }
 
+    auto getWinsFromLine()
+    {
+        return [](auto&& line) ->int {
+            auto lineParts = splitLine(':', '|')(line) | drop(1) | transform(parseNumbersToVector()) | std::ranges::to<std::vector>();
+            const std::vector<int>& winningNumbers{ lineParts.at(0) };
+            const std::vector<int>& yourNumbers{ lineParts.at(1) };
+            return getWins(winningNumbers, yourNumbers);
+            };
+    }
+
 }
 
 int day04::part1(std::istream&& input)
 {
     using namespace  std::views;
-    auto splitedLines = istream<Line>(input) | std::ranges::to<std::vector>();
-    std::vector<std::string> s = splitedLines | transform([](Line& l)->std::string {return  l.line; }) | std::ranges::to<std::vector>();
+    auto vecLines = istream<Line>(input) | transform([](Line l) {return std::string{ l }; }) | transform(getWinsFromLine()) | std::ranges::to<std::vector>();
 
-
-
-    return std::reduce(std::begin(s), std::end(s), 0, [](int sum, std::string& str)
+    return std::reduce(std::begin(vecLines), std::end(vecLines), 0, [](int sum, int wins)
         {
-            std::vector<std::string> lineParts = splitLine(':', '|')(str) | std::ranges::to<std::vector>();
-            const std::vector<int> winningNumbers{  parseNumbersToVector()(lineParts.at(1)) };
-            std::vector<int> yourNumbers{ parseNumbersToVector()(lineParts.at(2)) };
-
-            return sum + std::pow(2, getWins(winningNumbers, yourNumbers)-1);
+            return sum + std::pow(2, wins-1);
         });
 }
 
 int day04::part2(std::istream&& input)
 {
     using namespace  std::views;
-    auto splitedLines = istream<Line>(input) | std::ranges::to<std::vector>();
-    std::vector<std::string> s = splitedLines | transform([](Line& l)->std::string {return  l.line; }) | std::ranges::to<std::vector>();
+    auto vecLines = istream<Line>(input) | std::ranges::to<std::vector>();
 
-
-    std::pair<int, std::vector<int>> startvalue{ 0,{} };
-    return std::reduce(std::begin(s), std::end(s), startvalue, [](auto sum, std::string& str)
+    using ScratchcardCounts = std::vector<int>;
+    std::pair<int, ScratchcardCounts> startvalue{ 0,{} };
+    return std::reduce(std::begin(vecLines), std::end(vecLines), startvalue, [](auto sum, std::string str)
         {
-            std::vector<std::string> lineParts = splitLine(':', '|')(str) | std::ranges::to<std::vector>();
-             std::vector<int> winningNumbers{ parseNumbersToVector()(lineParts.at(1)) };
-            std::vector<int> yourNumbers{ parseNumbersToVector()(lineParts.at(2)) };
+            auto lineParts = splitLine(':', '|')(str) | drop(1) | transform(parseNumbersToVector()) | std::ranges::to<std::vector>();
+            const std::vector<int>& winningNumbers{ lineParts.at(0) };
+            const std::vector<int>& yourNumbers{ lineParts.at(1) };
 
-            int factor = 1;
-            if (sum.second.empty())
+            auto& [totalCount, scratchcardCounts] = sum;
+
+            if (scratchcardCounts.empty())
             {
-                sum.second = std::vector<int>(winningNumbers.size(),1);
+                scratchcardCounts = ScratchcardCounts(winningNumbers.size(), 1);
             }
-            else
-            {
-                factor = sum.second.front();
-                sum.second.erase(sum.second.begin());
-                sum.second.push_back(1);
-            }
-            sum.first += factor;
+
+            const int currentScratchcardCount = scratchcardCounts.front();
+            std::ranges::rotate(scratchcardCounts, std::next(std::begin(scratchcardCounts), 1));
+            scratchcardCounts.back() = 1;
+
+            totalCount += currentScratchcardCount;
             auto wins = getWins(winningNumbers, yourNumbers);
-            for (int i = 0; i < wins; ++i)
-            {
-                sum.second.at(i) += factor;
-            }
+            std::transform(std::begin(scratchcardCounts), std::next(std::begin(scratchcardCounts), wins),
+                std::begin(scratchcardCounts), std::bind_front(std::plus{}, currentScratchcardCount));
+
             return sum;
         }).first;
 }
 
-
-
 void aoc::day04()
 {
     //Part 1
-    std::println(" {}", day04::part1(std::ifstream{ "04.txt" }));
+    std::println("Points: {}", day04::part1(std::ifstream{ "04.txt" }));
 
-    ////Part 2
-    std::println("{}", day04::part2(std::ifstream{ "04.txt"  }));
+    //Part 2
+    std::println("Total scratchcard count: {}", day04::part2(std::ifstream{ "04.txt"  }));
 }
