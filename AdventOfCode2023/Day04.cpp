@@ -40,7 +40,10 @@ namespace {
     auto getWinsFromLine()
     {
         return [](auto&& line) ->int {
-            auto lineParts = splitLine(':', '|')(line) | drop(1) | transform(parseNumbersToVector()) | std::ranges::to<std::vector>();
+            const auto lineParts = splitLine(':', '|')(line) 
+                | drop(1) 
+                | transform(parseNumbersToVector()) 
+                | std::ranges::to<std::vector>();
             const std::vector<int>& winningNumbers{ lineParts.at(0) };
             const std::vector<int>& yourNumbers{ lineParts.at(1) };
             return getWins(winningNumbers, yourNumbers);
@@ -52,11 +55,14 @@ namespace {
 int day04::part1(std::istream&& input)
 {
     using namespace  std::views;
-    auto vecLines = istream<Line>(input) | transform([](Line l) {return std::string{ l }; }) | transform(getWinsFromLine()) | std::ranges::to<std::vector>();
+    const std::vector<int> wins = istream<Line>(input) 
+        | transform([](Line l) {return std::string{ l }; }) 
+        | transform(getWinsFromLine()) 
+        | std::ranges::to<std::vector>();
 
-    return std::reduce(std::begin(vecLines), std::end(vecLines), 0, [](int sum, int wins)
+    return std::reduce(std::begin(wins), std::end(wins), 0, [](int sum, int points)
         {
-            return sum + std::pow(2, wins-1);
+            return sum + std::pow(2, points -1);
         });
 }
 
@@ -69,7 +75,7 @@ int day04::part2(std::istream&& input)
     std::pair<int, ScratchcardCounts> startvalue{ 0,{} };
     return std::reduce(std::begin(vecLines), std::end(vecLines), startvalue, [](auto sum, std::string str)
         {
-            auto lineParts = splitLine(':', '|')(str) | drop(1) | transform(parseNumbersToVector()) | std::ranges::to<std::vector>();
+            const auto lineParts = splitLine(':', '|')(str) | drop(1) | transform(parseNumbersToVector()) | std::ranges::to<std::vector>();
             const std::vector<int>& winningNumbers{ lineParts.at(0) };
             const std::vector<int>& yourNumbers{ lineParts.at(1) };
 
@@ -85,7 +91,7 @@ int day04::part2(std::istream&& input)
             scratchcardCounts.back() = 1;
 
             totalCount += currentScratchcardCount;
-            auto wins = getWins(winningNumbers, yourNumbers);
+            const auto wins = getWins(winningNumbers, yourNumbers);
             std::transform(std::begin(scratchcardCounts), std::next(std::begin(scratchcardCounts), wins),
                 std::begin(scratchcardCounts), std::bind_front(std::plus{}, currentScratchcardCount));
 
